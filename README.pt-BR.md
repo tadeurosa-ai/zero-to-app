@@ -5,6 +5,19 @@ no ar — na ordem certa, sem sobrecarga e com verificações de segurança ante
 
 [English](README.md) · [Instalação](INSTALL.pt-BR.md) · [Exemplo de conversa](docs/exemplo-conversa.pt-BR.md)
 
+![zero-to-app no Claude Code: a skill entra sozinha, mostra o mapa das 8 etapas e faz uma pergunta por vez](docs/media/demo.gif)
+
+*Conversa de teste no Claude Code, mensagens digitadas pelo mantenedor, gravada com o pacote v1.0.0. Esperas
+cortadas.*
+
+<details><summary>Prints</summary>
+
+![Primeira resposta: a skill carrega e mostra o mapa das 8 etapas](docs/media/map-of-stages.png)
+
+![Segunda resposta: o que se aplica a um app de agendamento de salão](docs/media/first-answer.png)
+
+</details>
+
 ## Para quem é
 Para quem tem uma ideia de app, não sabe programar e quer construir com um assistente de IA ("vibe coding") sem
 vazar os dados de quem vai usar.
@@ -17,21 +30,25 @@ vazar os dados de quem vai usar.
 | 0 | Ponto de partida — onde você está, o que já tem, o mapa | sempre |
 | 1 | Problema e MVP (a menor versão que já resolve) | sempre |
 | 2 | Layout com dados de exemplo | sempre |
-| 3 | Guardar os dados com segurança (banco, login, regras de acesso) | só se o app guarda ou lê dado privado |
+| 3 | Guardar os dados com segurança (banco, login, regras de acesso) | só se o app guarda o que as pessoas digitam, ou lê dado privado |
 | 4 | Construir em pedaços, com pontos de salvamento | sempre |
-| 5 | Conferir e publicar num endereço grátis | sempre |
+| 5 | Conferir e publicar num endereço grátis | quando outras pessoas forem usar |
 | 6 | Domínio próprio | só com usuários de verdade |
 | 7 | Crescer | só com sinal de procura |
 
 Como ela conversa: uma coisa a responder por mensagem, mensagens curtas que começam pelo próximo passo e o *porquê*
 em uma frase quando ajuda. Responde no idioma da pessoa (instruções em inglês; português do Brasil com glossário).
 
-## O que a skill garante (núcleo de segurança)
+## O que a skill foi feita para garantir (núcleo de segurança)
+São regras que o assistente recebe para seguir. Comportamento de IA não é garantia absoluta — veja
+[Limitações conhecidas](#limitações-conhecidas).
+
 1. Nada vai ao ar sem um "sim" explícito.
-2. Dado privado só é guardado depois que o teste de acesso passa (o que é permitido e o que é proibido, com contas de
-   teste).
+2. Dado privado: regras de acesso restritivas antes de ligar o app, e teste de acesso do que é permitido e do que é
+   proibido, só com contas e registros de teste — nunca com dados de pessoas reais.
 3. Dado sensível (saúde, dinheiro, crianças, documentos) → ela para e recomenda um especialista.
-4. Se os dados vazarem, ela contém o acesso antes de qualquer outra coisa.
+4. Se o app já está no ar com dados de pessoas reais e o acesso nunca foi provado, ela primeiro propõe limitar ou
+   cortar o acesso e pede o seu "sim" antes de testar. Antes de publicar, combina um plano de contenção.
 5. Chave secreta nunca vai no código do site nem é pedida no chat.
 
 ## Plataformas

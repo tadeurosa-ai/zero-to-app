@@ -2,8 +2,9 @@ name: Security Gate
 
 # Pipeline self-hosted (nenhum código sai pro SaaS de terceiro) — SAST (Opengrep),
 # dependências (Trivy) e segredos vazados (Betterleaks), no próprio repositório.
-# Mesmo padrão já validado em outro projeto (13/11/2026). Sem caminhos protegidos
-# aqui: o repositório só tem o texto da skill. DAST fora: a skill não tem app rodando.
+# O repositório só tem o texto da skill; DAST fica de fora porque não há app rodando.
+# Se uma ferramenta não rodar (erro de instalação ou execução), o gate FALHA —
+# nunca fica verde sem ter verificado.
 #
 # VERSÕES FIXAS DE PROPÓSITO (não "latest"): tag de Git é mutável (ataque real ao
 # aquasecurity/trivy-action em março/2026 reescreveu tags existentes). Por isso as
@@ -48,7 +49,7 @@ jobs:
         run: |
           "$HOME/.opengrep/cli/latest/opengrep" scan \
             --config p/owasp-top-ten --config p/secrets \
-            --sarif --output=opengrep.sarif . || true
+            --sarif --output=opengrep.sarif .
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: opengrep-sarif
@@ -75,7 +76,7 @@ jobs:
           tar -xzf "$ASSET" trivy
           sudo mv trivy /usr/local/bin/trivy
       - name: Rodar Trivy (vulnerabilidades de dependências)
-        run: trivy fs --scanners vuln --format sarif --output trivy.sarif --severity CRITICAL,HIGH . || true
+        run: trivy fs --scanners vuln --format sarif --output trivy.sarif --severity CRITICAL,HIGH .
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: trivy-sarif
@@ -100,7 +101,10 @@ jobs:
           echo "GOBIN=$(go env GOPATH)/bin" >> "$GITHUB_ENV"
       - name: Rodar Betterleaks
         run: |
-          "$GOBIN/betterleaks" git . --report-format sarif --report-path betterleaks.sarif || true
+          # Código 1 = segredo encontrado (o relatório trata); outro código diferente de 0 = erro → falha.
+          rc=0
+          "$GOBIN/betterleaks" git . --report-format sarif --report-path betterleaks.sarif || rc=$?
+          if [ "$rc" -gt 1 ]; then echo "::error::Betterleaks falhou (código $rc)"; exit "$rc"; fi
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: betterleaks-sarif
@@ -108,7 +112,7 @@ jobs:
           if-no-files-found: warn
 
   relatorio:
-    name: Relatório + notificação
+    name: Relatório
     needs: [opengrep, trivy, betterleaks]
     if: always()
     runs-on: ubuntu-24.04
@@ -128,8 +132,8 @@ jobs:
         with:
           name: security-gate-relatorio
           path: relatorio.html
-      - name: Falhar se houver crítico
+      - name: Falhar se houver crítico ou ferramenta que não rodou
         if: steps.montar.outputs.critico == 'true'
         run: |
-          echo "::error::security-gate achou CRÍTICO — ver o artifact security-gate-relatorio."
+          echo "::error::security-gate achou CRÍTICO ou uma ferramenta não rodou — ver o artifact security-gate-relatorio."
           exit 1

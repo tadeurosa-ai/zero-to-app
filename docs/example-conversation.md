@@ -1,7 +1,8 @@
 # Example conversation
 
-Real test conversation in Claude Code (2026-11-13, skill version v5). The person's message was written by the
-tester; the reply is the assistant's, unedited.
+Test conversation in Claude Code (2026-11-13, v1.0.0 — skill package v5). The person's message was written by the
+maintainer; the reply is the assistant's, unedited. Note: here the assistant assumed the environment instead of
+asking, which goes against stage 0 — see Known limitations in the README.
 
 **Person:** I want to build my first app
 

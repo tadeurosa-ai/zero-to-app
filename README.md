@@ -5,6 +5,19 @@ in the right order, without overload, and with safety checks before anything is 
 
 [Português](README.pt-BR.md) · [Install](INSTALL.md) · [Example conversation](docs/example-conversation.md)
 
+![zero-to-app in Claude Code: the skill starts by itself, shows the 8-stage map and asks one question at a time](docs/media/demo.gif)
+
+*Test conversation in Claude Code (in Portuguese), messages typed by the maintainer, recorded with the v1.0.0
+package. Waiting time cut.*
+
+<details><summary>Screenshots</summary>
+
+![First reply: the skill loads and shows the map of the 8 stages](docs/media/map-of-stages.png)
+
+![Second reply: what applies to a salon booking app](docs/media/first-answer.png)
+
+</details>
+
 ## Who it is for
 People who have an app idea, do not know how to code, and want to build it with an AI assistant ("vibe coding")
 without leaking the data of the people who will use it.
@@ -17,9 +30,9 @@ without leaking the data of the people who will use it.
 | 0 | Starting point — where you are, what you have, the map | always |
 | 1 | Problem and MVP (the smallest version that already helps) | always |
 | 2 | Layout with sample data | always |
-| 3 | Storing data safely (database, login, access rules) | only if the app saves or reads private data |
+| 3 | Storing data safely (database, login, access rules) | only if the app keeps information people type, or reads private data |
 | 4 | Building in small pieces, with save points | always |
-| 5 | Checking and publishing on a free address | always |
+| 5 | Checking and publishing on a free address | when other people will use it |
 | 6 | Your own domain | only with real users |
 | 7 | Growing | only with signs of demand |
 
@@ -27,11 +40,16 @@ How it talks: one thing to answer per message, short messages that start with th
 sentence when it helps. It answers in the person's language (instructions in English; Brazilian Portuguese
 supported with a short glossary).
 
-## What the skill guarantees (safety core)
+## What the skill is designed to guarantee (safety core)
+These are rules the assistant is instructed to follow. AI behavior is not a hard guarantee — see
+[Known limitations](#known-limitations).
+
 1. Nothing goes online without an explicit "yes".
-2. Private data is stored only after the access test passes (allowed and forbidden actions, with test accounts).
+2. Private data: restrictive access rules before connecting the app, and an access test of what is allowed and what
+   is forbidden, using test accounts and test records only — never real people's data.
 3. Sensitive data (health, money, children, identity documents) → it stops and recommends a specialist.
-4. If data leaks, it contains access before anything else.
+4. If the app is already online with real people's data and access was never proven, it first proposes limiting or
+   cutting access and asks for your "yes" before testing. Before publishing, a containment plan is agreed.
 5. A secret key is never put in the website code and never asked for in the chat.
 
 ## Platforms

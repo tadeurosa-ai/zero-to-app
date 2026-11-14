@@ -1,7 +1,8 @@
 # Exemplo de conversa
 
-Conversa real de teste no Claude Code (13/11/2026, versão v5 da skill). As mensagens da pessoa foram escritas por
-quem testou; as respostas são do assistente, sem edição.
+Conversa de teste no Claude Code (13/11/2026, v1.0.0 — pacote v5 da skill). As mensagens da pessoa foram escritas
+pelo mantenedor; as respostas são do assistente, sem edição. Atenção: aqui o assistente deduziu o ambiente em vez
+de perguntar, o que contraria a etapa 0 — veja Limitações conhecidas no README.
 
 **Pessoa:** quero tirar meu app do papel
 

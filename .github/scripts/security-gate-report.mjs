@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Agrega os 3 SARIF (Opengrep/Trivy/Betterleaks) num relatório HTML único e
-// decide se algo CRÍTICO foi achado (aciona notificação no Telegram).
+// decide se o gate deve falhar: achado CRÍTICO ou ferramenta que não gerou relatório.
 //
 // Critério de "crítico":
 // - Opengrep/Trivy: qualquer resultado com level "error" (SARIF padrão pra
@@ -52,7 +52,8 @@ async function main() {
 
   for (const fonte of FONTES) {
     const { existe, erro, resultados } = await lerSarif(fonte.arquivo);
-    const critico = existe && !erro && achouCritico(resultados, fonte.criterioCritico);
+    const naoRodou = !existe || Boolean(erro);
+    const critico = naoRodou || achouCritico(resultados, fonte.criterioCritico);
     if (critico) algumCritico = true;
 
     const linhas = resultados.slice(0, 200).map((r) => `
@@ -66,7 +67,7 @@ async function main() {
     secoes.push(`
       <section>
         <h2>${escapeHtml(fonte.nome)} ${critico ? '🔴' : '🟢'}</h2>
-        <p>${!existe ? 'Sem SARIF (job pode ter falhado).' : erro ? `Erro ao ler: ${escapeHtml(erro)}` : `${resultados.length} achado(s).`}</p>
+        <p>${!existe ? 'Sem SARIF: a ferramenta não rodou — conta como falha.' : erro ? `Erro ao ler: ${escapeHtml(erro)}` : `${resultados.length} achado(s).`}</p>
         ${resultados.length ? `<table><thead><tr><th>Nível</th><th>Regra</th><th>Local</th><th>Mensagem</th></tr></thead><tbody>${linhas}</tbody></table>` : ''}
       </section>`);
   }
@@ -87,7 +88,7 @@ async function main() {
 <body>
   <h1>security-gate — zero-to-app</h1>
   <p>Gerado em ${agora} (horário de Brasília)</p>
-  <div class="resumo ${algumCritico ? 'critico' : 'ok'}">${algumCritico ? '🔴 Achado CRÍTICO — ver seção abaixo' : '🟢 Nenhum achado crítico nesta rodada'}</div>
+  <div class="resumo ${algumCritico ? 'critico' : 'ok'}">${algumCritico ? '🔴 Achado CRÍTICO ou ferramenta que não rodou — ver seção abaixo' : '🟢 Nenhum achado crítico nesta rodada'}</div>
   ${secoes.join('\n')}
 </body></html>`;
 
